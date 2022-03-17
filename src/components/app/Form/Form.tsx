@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => {
     formTypeHeading: {
       textTransform: "uppercase",
       marginBottom: 52,
-      [theme.breakpoints.down(501.1)]: {
+      [theme.breakpoints.down(601.1)]: {
         marginBottom: 30,
       },
       [theme.breakpoints.down(401.1)]: {
@@ -91,8 +91,10 @@ const Form = () => {
 
     setIsChecked(false);
 
-    if (email && password) {
+    if (email) {
       emailInputRef.current.value = "";
+    }
+    if (password) {
       passwordInputRef.current.value = "";
     }
     if (username) {
@@ -117,7 +119,10 @@ const Form = () => {
           {newUser ? "create account" : "sign in"}
         </Typography>
 
-        <form className={styles.form} onSubmit={formSubmitHandler}>
+        <form
+          className={`${styles.form} ${!newUser ? styles.formMargin : ""}`}
+          onSubmit={formSubmitHandler}
+        >
           <FormControl
             fullWidth
             variant="standard"
