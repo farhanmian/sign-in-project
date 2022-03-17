@@ -25,9 +25,11 @@ const useStyles = makeStyles({
 });
 
 const Home = () => {
+  const ctx = useAppContext();
+  if (!ctx) return null;
+  const { activeUser, setActiveUser, setIsLoading, isLoading } = ctx;
+
   const classes = useStyles();
-  const { activeUser, setActiveUser, setIsLoading, isLoading } =
-    useAppContext();
 
   const logoutHandler = () => {
     setIsLoading(true);

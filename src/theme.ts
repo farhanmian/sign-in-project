@@ -50,6 +50,12 @@ const theme = createTheme({
       fontSize: 14,
       lineHeight: "21px",
       fontWeight: 500,
+      "@media(max-width: 700px)": {
+        fontSize: 12,
+      },
+      "@media(max-width: 600px)": {
+        fontSize: 14,
+      },
       "@media(max-width: 400px)": {
         fontSize: 12,
       },

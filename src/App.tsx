@@ -7,7 +7,9 @@ import Loading from "./components/partials/Loading/Loading";
 import { useAppContext } from "./store/context/appContext";
 
 function App() {
-  const { activeUser, isInitialLoading } = useAppContext();
+  const ctx = useAppContext();
+  if (!ctx) return null;
+  const { activeUser, isInitialLoading } = ctx;
 
   return (
     <section className="App">

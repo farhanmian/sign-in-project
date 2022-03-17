@@ -23,10 +23,7 @@ const useStyles = makeStyles((theme) => {
       textTransform: "uppercase",
       marginBottom: 52,
       [theme.breakpoints.down(601.1)]: {
-        marginBottom: 30,
-      },
-      [theme.breakpoints.down(401.1)]: {
-        marginBottom: 20,
+        marginBottom: 40,
       },
     },
     input: {
@@ -81,14 +78,20 @@ const useStyles = makeStyles((theme) => {
       position: "absolute",
       top: 40,
       fontWeight: 600,
+      [theme.breakpoints.down(600)]: {
+        top: 35,
+      },
     },
   };
 });
 
 const Form = () => {
+  const ctx = useAppContext();
+  if (!ctx) return null;
+  const { setActiveUser, users, setUsers, isLoading, setIsLoading } = ctx;
+
   const classes = useStyles();
-  const { setActiveUser, users, setUsers, isLoading, setIsLoading } =
-    useAppContext();
+
   const [newUser, setNewUser] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState(false);
@@ -111,15 +114,19 @@ const Form = () => {
    * if user checked remember-me then filling user detail on another login
    */
   useEffect(() => {
-    const remember = +localStorage.getItem("remember");
+    const id = localStorage.getItem("remember");
+    const remember = id ? +id : null;
+
     if (!remember || users.length === 0) return;
 
     const details = users
       .filter((user: { id: number }) => user && user.id === remember)
       .pop();
 
-    emailInputRef.current.value = details.email;
-    passwordInputRef.current.value = details.password;
+    if (emailInputRef.current && passwordInputRef.current && details) {
+      emailInputRef.current.value = details.email;
+      passwordInputRef.current.value = details.password;
+    }
   }, [users]);
 
   /**
@@ -155,19 +162,20 @@ const Form = () => {
       id: +id,
     };
 
-    const existingUser =
+    const existingEmail =
       users.length > 0 &&
-      users.filter((item: { email: string }) => item.email === email);
+      users.filter((item: { email: string }) => item.email === email).pop();
 
-    if (existingUser.length > 0) {
+    if (existingEmail) {
       setEmailError(true);
       return;
     }
+
     setIsLoading(true);
     setTimeout(() => {
       setUsers((prev) => (prev ? [...prev, user] : [user]));
       set(ref(db, "users/" + users.length), user);
-      setNewUser(false);
+      setActiveUser(user);
       setIsLoading(false);
     }, 2000);
   };
@@ -195,9 +203,9 @@ const Form = () => {
     setTimeout(() => {
       setIsLoading(false);
       setActiveUser(matchedUser);
-      localStorage.setItem("userId", matchedUser.id);
+      localStorage.setItem("userId", `${matchedUser.id}`);
       if (isChecked) {
-        localStorage.setItem("remember", matchedUser.id);
+        localStorage.setItem("remember", `${matchedUser.id}`);
       } else {
         localStorage.setItem("remember", "");
       }
@@ -331,6 +339,7 @@ const Form = () => {
                   required={newUser}
                   onChange={checkboxChangeHandler}
                   checked={isChecked}
+                  disabled={isLoading}
                 />
               }
               label={

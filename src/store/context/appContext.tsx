@@ -14,30 +14,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { UserType } from "../types/types";
 
-const AppContext = createContext({
-  activeUser: null,
-  setActiveUser: null,
-  users: null,
-  setUsers: null,
-  isLoading: false,
-  setIsLoading: null,
-  isInitialLoading: true,
-});
+interface AppContextInterface {
+  activeUser: UserType | null;
+  setActiveUser: React.Dispatch<React.SetStateAction<UserType | null>>;
+  users: UserType[];
+  setUsers: React.Dispatch<React.SetStateAction<UserType[]>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isInitialLoading: boolean;
+}
+
+const AppContext = createContext<AppContextInterface | null>(null);
 
 export const AppWrapper: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {
-  const [activeUser, setActiveUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [activeUser, setActiveUser] = useState<UserType | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserType[]>([]);
 
   /**
    * checking if user in logged in
    */
   useEffect(() => {
-    const id = +localStorage.getItem("userId");
+    const storeUserId = localStorage.getItem("userId");
+    const id = storeUserId ? +storeUserId : null;
 
     setIsInitialLoading(true);
     const fetchData = async () => {
@@ -63,11 +67,11 @@ export const AppWrapper: React.FC<{ children: JSX.Element }> = ({
       value={{
         activeUser,
         setActiveUser,
-        users,
-        setUsers,
         isLoading,
         setIsLoading,
         isInitialLoading,
+        users,
+        setUsers,
       }}
     >
       {children}
