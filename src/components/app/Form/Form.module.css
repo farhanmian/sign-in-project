@@ -35,6 +35,10 @@
   margin-bottom: 40px;
 }
 
+.bold600 {
+  font-weight: 600;
+}
+
 /*/////// media queries */
 
 @media only screen and (max-width: 600px) {

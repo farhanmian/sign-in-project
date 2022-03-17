@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import {
   Typography,
   makeStyles,
@@ -65,21 +65,32 @@ const useStyles = makeStyles((theme) => {
     marginBottom4: {
       marginBottom: 4,
     },
+    underline: {
+      textDecoration: "underline",
+    },
   };
 });
 
 const Form = () => {
   const classes = useStyles();
   const [newUser, setNewUser] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const usernameInputRef = useRef<HTMLInputElement>(null);
 
-  const formSubmitHandler = (e: FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    clearInputs();
+  }, [newUser]);
+
+  const clearInputs = () => {
     const email = emailInputRef.current?.value;
     const password = passwordInputRef.current?.value;
     const username = usernameInputRef.current?.value;
+
+    setIsChecked(false);
+
     if (email && password) {
       emailInputRef.current.value = "";
       passwordInputRef.current.value = "";
@@ -87,6 +98,16 @@ const Form = () => {
     if (username) {
       usernameInputRef.current.value = "";
     }
+  };
+
+  const formSubmitHandler = (e: FormEvent) => {
+    e.preventDefault();
+
+    clearInputs();
+  };
+
+  const checkboxChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
   };
 
   return (
@@ -108,6 +129,7 @@ const Form = () => {
             </InputLabel>
             <Input
               id="email"
+              type={!newUser ? "text" : "email"}
               className={classes.input}
               inputRef={emailInputRef}
             />
@@ -148,18 +170,40 @@ const Form = () => {
             />
           </FormControl>
 
-          <Link
-            className={`${classes.link} ${classes.forgetPasswordLink}`}
-            color="textPrimary"
-          >
-            Forgot Password?
-          </Link>
+          {!newUser && (
+            <Link
+              className={`${classes.link} ${classes.forgetPasswordLink}`}
+              color="textPrimary"
+            >
+              Forgot Password?
+            </Link>
+          )}
 
-          <div className={styles.checkBoxContainer}>
+          <div
+            className={styles.checkBoxContainer}
+            style={{ marginTop: newUser ? 38 : "" }}
+          >
             <FormControlLabel
               className={classes.checkbox}
-              control={<Checkbox />}
-              label="Remember Me"
+              control={
+                <Checkbox
+                  required={newUser}
+                  onChange={checkboxChangeHandler}
+                  checked={isChecked}
+                />
+              }
+              label={
+                !newUser ? (
+                  "Remember Me"
+                ) : (
+                  <React.Fragment>
+                    I agree to all{" "}
+                    <Link className={classes.underline}>
+                      Terms & Conditions
+                    </Link>
+                  </React.Fragment>
+                )
+              }
             />
           </div>
 
@@ -174,15 +218,19 @@ const Form = () => {
           </Button>
         </form>
 
-        {!newUser ? (
-          <Link className={classes.link} onClick={() => setNewUser(!newUser)}>
-            Don`t have an account? <b>Create Account</b>
-          </Link>
-        ) : (
-          <Link className={classes.link} onClick={() => setNewUser(!newUser)}>
-            Already have an account? <b>Sign In</b>
-          </Link>
-        )}
+        <Link className={classes.link} onClick={() => setNewUser(!newUser)}>
+          {!newUser ? (
+            <React.Fragment>
+              Don`t have an account?{" "}
+              <span className={styles.bold600}>Create Account</span>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              Already have an account?{" "}
+              <span className={styles.bold600}>Sign In</span>
+            </React.Fragment>
+          )}
+        </Link>
       </div>
     </div>
   );
