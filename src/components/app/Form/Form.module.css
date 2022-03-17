@@ -21,6 +21,7 @@
 .innerContainer {
   max-width: 368px;
   height: 482px;
+  position: relative;
 }
 
 .form {
@@ -43,32 +44,26 @@
 
 @media only screen and (max-width: 600px) {
   .innerContainer {
-    height: 470px;
+    height: 420px;
   }
   .formContainer {
     max-width: 100%;
     padding: 50px 10px;
-    margin-top: 50px;
+    margin-top: 30px;
   }
-  .formMargin {
-    margin-bottom: 80px;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .formContainer {
-    padding: 30px 10px;
+  .form {
+    margin-bottom: 60px;
   }
 }
 
 @media only screen and (max-width: 500px) {
   .innerContainer {
-    height: 430px;
-  }
-}
-
-@media only screen and (max-width: 400px) {
-  .innerContainer {
     height: auto;
+  }
+  .formContainer {
+    padding: 30px 10px;
+  }
+  .form {
+    margin-bottom: 50px;
   }
 }

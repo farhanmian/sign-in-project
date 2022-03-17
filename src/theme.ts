@@ -70,7 +70,7 @@ const theme = createTheme({
     },
     text: {
       primary: "#2F2E41",
-      secondary: "#ccc",
+      secondary: "#333",
     },
   },
 });

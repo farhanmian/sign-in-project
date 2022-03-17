@@ -11,6 +11,11 @@ import {
   Button,
 } from "@material-ui/core";
 import styles from "./Form.module.css";
+import { UserType } from "../../../store/types/types";
+import { useAppContext } from "../../../store/context/appContext";
+import Loading from "../../partials/Loading/Loading";
+import { getDatabase, set, ref } from "firebase/database";
+const db = getDatabase();
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -57,7 +62,10 @@ const useStyles = makeStyles((theme) => {
     },
     checkbox: {
       height: 20,
-      "& > :last-child": theme.typography.body2,
+      "& > :last-child": {
+        ...theme.typography.body2,
+        color: theme.palette.text.primary,
+      },
       "& .Mui-checked": {
         color: "#1976D2",
       },
@@ -68,22 +76,55 @@ const useStyles = makeStyles((theme) => {
     underline: {
       textDecoration: "underline",
     },
+    error: {
+      width: "max-content",
+      position: "absolute",
+      top: 40,
+      fontWeight: 600,
+    },
   };
 });
 
 const Form = () => {
   const classes = useStyles();
+  const { setActiveUser, users, setUsers, isLoading, setIsLoading } =
+    useAppContext();
   const [newUser, setNewUser] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [error, setError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const usernameInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * clearing inputs whenever newUser state changes
+   */
   useEffect(() => {
     clearInputs();
+    setEmailError(false);
+    setError(false);
   }, [newUser]);
 
+  /**
+   * if user checked remember-me then filling user detail on another login
+   */
+  useEffect(() => {
+    const remember = +localStorage.getItem("remember");
+    if (!remember || users.length === 0) return;
+
+    const details = users
+      .filter((user: { id: number }) => user && user.id === remember)
+      .pop();
+
+    emailInputRef.current.value = details.email;
+    passwordInputRef.current.value = details.password;
+  }, [users]);
+
+  /**
+   * clear input handler
+   */
   const clearInputs = () => {
     const email = emailInputRef.current?.value;
     const password = passwordInputRef.current?.value;
@@ -102,12 +143,90 @@ const Form = () => {
     }
   };
 
-  const formSubmitHandler = (e: FormEvent) => {
-    e.preventDefault();
+  /**
+   * creating account and sending user data to firebase
+   */
+  const createAccount = (name: string, email: string, password: string) => {
+    const id = (Math.random() * 1000).toFixed();
+    const user = {
+      name,
+      email,
+      password,
+      id: +id,
+    };
 
-    clearInputs();
+    const existingUser =
+      users.length > 0 &&
+      users.filter((item: { email: string }) => item.email === email);
+
+    if (existingUser.length > 0) {
+      setEmailError(true);
+      return;
+    }
+    setIsLoading(true);
+    setTimeout(() => {
+      setUsers((prev) => (prev ? [...prev, user] : [user]));
+      set(ref(db, "users/" + users.length), user);
+      setNewUser(false);
+      setIsLoading(false);
+    }, 2000);
   };
 
+  /**
+   * sign-in handler
+   */
+  const signIn = (email: string, password: string) => {
+    const type = email.includes("@") ? "email" : "name";
+
+    const matchedUser = users
+      .filter((item: UserType) =>
+        type === "email"
+          ? item.email === email && item.password === password
+          : item.name === email && item.password === password
+      )
+      .pop();
+
+    if (!matchedUser) {
+      setError(true);
+      return;
+    }
+
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setActiveUser(matchedUser);
+      localStorage.setItem("userId", matchedUser.id);
+      if (isChecked) {
+        localStorage.setItem("remember", matchedUser.id);
+      } else {
+        localStorage.setItem("remember", "");
+      }
+    }, 2000);
+  };
+
+  /**
+   * function that runs on form submit
+   */
+  const formSubmitHandler = (e: FormEvent) => {
+    e.preventDefault();
+    const email = `${emailInputRef.current?.value}`;
+    const password = `${passwordInputRef.current?.value}`;
+    const username = `${usernameInputRef.current?.value}`;
+
+    setEmailError(false);
+    setError(false);
+
+    if (newUser) {
+      createAccount(username, email, password);
+    } else {
+      signIn(email, password);
+    }
+    // clearInputs();
+  };
+
+  /**
+   * a simple checkbox change handler
+   */
   const checkboxChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
   };
@@ -119,15 +238,26 @@ const Form = () => {
           {newUser ? "create account" : "sign in"}
         </Typography>
 
-        <form
-          className={`${styles.form} ${!newUser ? styles.formMargin : ""}`}
-          onSubmit={formSubmitHandler}
-        >
+        {emailError && (
+          <Typography className={classes.error} variant="body2" color="error">
+            Email already in use!
+          </Typography>
+        )}
+
+        {error && (
+          <Typography className={classes.error} variant="body2" color="error">
+            Invalid Credentials!
+          </Typography>
+        )}
+
+        <form className={styles.form} onSubmit={formSubmitHandler}>
           <FormControl
             fullWidth
             variant="standard"
             className={`${classes.input} ${classes.marginBottom4}`}
             required
+            disabled={isLoading}
+            error={emailError || error}
           >
             <InputLabel className={classes.inputLabel} htmlFor="email">
               {!newUser ? "Username/Email" : "Email"}
@@ -146,6 +276,8 @@ const Form = () => {
               variant="standard"
               className={`${classes.input} ${classes.marginBottom4}`}
               required
+              disabled={isLoading}
+              error={error}
             >
               <InputLabel className={classes.inputLabel} htmlFor="username">
                 Username
@@ -163,6 +295,8 @@ const Form = () => {
             variant="standard"
             className={classes.input}
             required
+            disabled={isLoading}
+            error={error}
           >
             <InputLabel className={classes.inputLabel} htmlFor="password">
               Password
@@ -172,6 +306,7 @@ const Form = () => {
               className={classes.input}
               type="password"
               inputRef={passwordInputRef}
+              inputProps={{ minLength: 6 }}
             />
           </FormControl>
 
@@ -190,6 +325,7 @@ const Form = () => {
           >
             <FormControlLabel
               className={classes.checkbox}
+              disabled={isLoading}
               control={
                 <Checkbox
                   required={newUser}
@@ -203,7 +339,7 @@ const Form = () => {
                 ) : (
                   <React.Fragment>
                     I agree to all{" "}
-                    <Link className={classes.underline}>
+                    <Link color="textPrimary" className={classes.underline}>
                       Terms & Conditions
                     </Link>
                   </React.Fragment>
@@ -218,12 +354,17 @@ const Form = () => {
             variant="contained"
             color="secondary"
             disableElevation
+            disabled={isLoading}
           >
-            {newUser ? "sign up" : "sign in"}
+            {!isLoading ? newUser ? "sign up" : "sign in" : <Loading />}
           </Button>
         </form>
 
-        <Link className={classes.link} onClick={() => setNewUser(!newUser)}>
+        <Link
+          className={classes.link}
+          color="textSecondary"
+          onClick={() => setNewUser(!newUser)}
+        >
           {!newUser ? (
             <React.Fragment>
               Don`t have an account?{" "}
