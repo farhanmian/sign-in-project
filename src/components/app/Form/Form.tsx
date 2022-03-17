@@ -37,13 +37,14 @@ const useStyles = makeStyles((theme) => {
       color: theme.palette.primary.main,
     },
     link: {
-      display: "block",
+      display: "inline-block",
       cursor: "pointer",
       ...theme.typography.subtitle1,
     },
     forgetPasswordLink: {
       textAlign: "end",
       marginBottom: 12,
+      marginLeft: "auto",
       marginTop: 8,
     },
     submitBtn: {

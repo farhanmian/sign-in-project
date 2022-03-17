@@ -13,12 +13,8 @@ const theme = createTheme({
         lineHeight: "50px",
       },
       "@media(max-width: 800px)": {
-        fontSize: 30,
-        lineHeight: "45px",
-      },
-      "@media(max-width: 700px)": {
         fontSize: 28,
-        lineHeight: "40px",
+        lineHeight: "45px",
       },
 
       "@media(max-width: 500px)": {
