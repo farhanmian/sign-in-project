@@ -1,0 +1,61 @@
+.displayFlexColumn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.formContainer {
+  max-width: 566px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 99px 10px;
+  box-sizing: border-box;
+}
+
+.innerContainer {
+  margin-top: 38px;
+  max-width: 368px;
+  height: 482px;
+}
+
+.form {
+  margin-bottom: auto;
+  text-align: start;
+}
+
+.checkBoxContainer {
+  margin-bottom: 40px;
+}
+
+/*/////// media queries */
+
+@media only screen and (max-width: 600px) {
+  .formContainer {
+    max-width: 100%;
+    padding: 50px 10px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .formContainer {
+    padding: 30px 10px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .innerContainer {
+    height: 470px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .innerContainer {
+    height: 450px;
+    margin-top: 0;
+  }
+}
