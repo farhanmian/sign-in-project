@@ -17,8 +17,11 @@ const useStyles = makeStyles((theme) => {
     formTypeHeading: {
       textTransform: "uppercase",
       marginBottom: 52,
-      [theme.breakpoints.down(401.1)]: {
+      [theme.breakpoints.down(501.1)]: {
         marginBottom: 30,
+      },
+      [theme.breakpoints.down(401.1)]: {
+        marginBottom: 20,
       },
     },
     input: {

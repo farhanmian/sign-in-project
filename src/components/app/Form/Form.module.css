@@ -14,11 +14,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 99px 10px;
+  padding-top: 138px;
   box-sizing: border-box;
 }
 
 .innerContainer {
-  margin-top: 38px;
   max-width: 368px;
   height: 482px;
 }
@@ -38,6 +38,7 @@
   .formContainer {
     max-width: 100%;
     padding: 50px 10px;
+    margin-top: 50px;
   }
 }
 
@@ -56,6 +57,5 @@
 @media only screen and (max-width: 400px) {
   .innerContainer {
     height: 450px;
-    margin-top: 0;
   }
 }

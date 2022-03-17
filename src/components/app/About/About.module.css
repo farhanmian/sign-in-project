@@ -41,6 +41,12 @@
   }
 }
 
+@media only screen and (max-width: 700px) {
+  .about {
+    padding: 10px;
+  }
+}
+
 @media only screen and (max-width: 600px) {
   .about {
     padding: 20px;
@@ -59,6 +65,7 @@
 @media only screen and (max-width: 400px) {
   .about {
     padding: 10px;
+    padding-top: 20px;
   }
   .logoContainer {
     width: 70px;
